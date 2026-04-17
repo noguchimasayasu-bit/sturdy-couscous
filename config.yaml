@@ -29,34 +29,21 @@ companies:
   - name: 今治造船
     ticker: "-"
 
-# RSSフィード設定
+# RSSフィード設定（Yahoo Japan - 安定して取得可能）
 rss_feeds:
-  # Yahoo Japan ビジネスニュース（安定して取得可能）
   - name: Yahoo Japan - ビジネス
     url: "https://news.yahoo.co.jp/rss/categories/business.xml"
   - name: Yahoo Japan - 国内
     url: "https://news.yahoo.co.jp/rss/categories/domestic.xml"
+  - name: Yahoo Japan - テクノロジー
+    url: "https://news.yahoo.co.jp/rss/categories/science.xml"
   - name: Yahoo Japan - 国際
     url: "https://news.yahoo.co.jp/rss/categories/world.xml"
-
-  # Reuters Japan
-  - name: Reuters Japan - ビジネス
-    url: "https://feeds.reuters.com/reuters/JPbusinessNews"
-  - name: Reuters Japan - テクノロジー
-    url: "https://feeds.reuters.com/reuters/JPtechnologyNews"
-
-  # 企業プレスリリース（PR TIMES）
-  - name: PR TIMES - 三菱重工業
-    url: "https://prtimes.jp/rss/all/20885.rss"
-  - name: PR TIMES - 川崎重工業
-    url: "https://prtimes.jp/rss/all/38085.rss"
-  - name: PR TIMES - IHI
-    url: "https://prtimes.jp/rss/all/14315.rss"
 
 # メール配信設定
 email:
   subject_prefix: "【機械・造船・プラントセクター】ニュースダイジェスト"
-  max_articles_per_feed: 8
+  max_articles_per_feed: 10
   max_total_articles: 40
   # キーワードフィルタリング（これらを含む記事のみ配信）
   keywords:
