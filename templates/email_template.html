@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>機械・造船・プラントセクター ニュースダイジェスト</title>
+  <style>
+    body {
+      font-family: 'Hiragino Kaku Gothic ProN', 'Meiryo', 'MS PGothic', sans-serif;
+      background-color: #f4f6f9;
+      margin: 0;
+      padding: 0;
+      color: #333333;
+    }
+    .wrapper {
+      max-width: 720px;
+      margin: 0 auto;
+      background-color: #ffffff;
+    }
+    .header {
+      background-color: #1a3a5c;
+      color: #ffffff;
+      padding: 24px 32px;
+    }
+    .header h1 {
+      margin: 0 0 6px 0;
+      font-size: 20px;
+      font-weight: bold;
+      letter-spacing: 0.05em;
+    }
+    .header .subtitle {
+      font-size: 13px;
+      color: #a8c4e0;
+      margin: 0;
+    }
+    .summary-bar {
+      background-color: #e8f0f8;
+      padding: 12px 32px;
+      font-size: 13px;
+      color: #1a3a5c;
+      border-bottom: 2px solid #1a3a5c;
+    }
+    .content {
+      padding: 24px 32px;
+    }
+    .section-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: #1a3a5c;
+      border-left: 4px solid #1a3a5c;
+      padding-left: 10px;
+      margin: 24px 0 12px 0;
+    }
+    .article-card {
+      border: 1px solid #e0e7ef;
+      border-radius: 6px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      background-color: #fafcff;
+    }
+    .article-card:hover {
+      border-color: #1a3a5c;
+    }
+    .article-title {
+      font-size: 14px;
+      font-weight: bold;
+      margin: 0 0 6px 0;
+      line-height: 1.5;
+    }
+    .article-title a {
+      color: #1a3a5c;
+      text-decoration: none;
+    }
+    .article-title a:hover {
+      text-decoration: underline;
+    }
+    .article-meta {
+      font-size: 11px;
+      color: #888888;
+      margin: 0 0 6px 0;
+    }
+    .article-summary {
+      font-size: 12px;
+      color: #555555;
+      margin: 0;
+      line-height: 1.6;
+    }
+    .companies-section {
+      background-color: #f0f4f8;
+      border-radius: 6px;
+      padding: 16px 20px;
+      margin-top: 24px;
+    }
+    .companies-section h3 {
+      font-size: 13px;
+      color: #1a3a5c;
+      margin: 0 0 10px 0;
+    }
+    .company-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .company-tag {
+      background-color: #1a3a5c;
+      color: #ffffff;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 3px;
+      white-space: nowrap;
+    }
+    .footer {
+      background-color: #f4f6f9;
+      padding: 16px 32px;
+      font-size: 11px;
+      color: #888888;
+      text-align: center;
+      border-top: 1px solid #e0e7ef;
+    }
+    .no-articles {
+      text-align: center;
+      padding: 40px;
+      color: #888888;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- ヘッダー -->
+  <div class="header">
+    <h1>機械・造船・プラントセクター</h1>
+    <p class="subtitle">ニュースダイジェスト ／ {{ date }}</p>
+  </div>
+
+  <!-- サマリーバー -->
+  <div class="summary-bar">
+    本日の収集記事数：<strong>{{ total_count }}</strong>件　／
+    フィード数：<strong>{{ grouped_articles | length }}</strong>件
+  </div>
+
+  <div class="content">
+
+    {% if total_count == 0 %}
+    <div class="no-articles">
+      本日は対象記事が見つかりませんでした。
+    </div>
+    {% else %}
+
+    {% for feed_name, feed_articles in grouped_articles.items() %}
+    <div class="section-title">{{ feed_name }}</div>
+
+    {% for article in feed_articles %}
+    <div class="article-card">
+      <p class="article-title">
+        <a href="{{ article.url }}" target="_blank">{{ article.title }}</a>
+      </p>
+      <p class="article-meta">
+        {{ article.source }}
+        {% if article.published %}
+        　／　{{ article.published.strftime('%Y-%m-%d %H:%M UTC') }}
+        {% endif %}
+      </p>
+      {% if article.summary %}
+      <p class="article-summary">{{ article.summary }}{% if article.summary | length >= 300 %}…{% endif %}</p>
+      {% endif %}
+    </div>
+    {% endfor %}
+
+    {% endfor %}
+
+    <!-- 対象企業リスト -->
+    {% if companies %}
+    <div class="companies-section">
+      <h3>ウォッチ対象企業</h3>
+      <div class="company-tags">
+        {% for company in companies %}
+        <span class="company-tag">
+          {{ company.name }}{% if company.ticker != "-" %} ({{ company.ticker }}){% endif %}
+        </span>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% endif %}
+
+  </div>
+
+  <!-- フッター -->
+  <div class="footer">
+    このメールは自動配信されています。配信停止は管理者までご連絡ください。<br>
+    生成日時：{{ generated_at }}
+  </div>
+
+</div>
+</body>
+</html>
