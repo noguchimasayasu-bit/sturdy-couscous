@@ -3,3 +3,4 @@ requests==2.31.0
 PyYAML==6.0.1
 Jinja2==3.1.4
 python-dotenv==1.0.1
+sendgrid==6.11.0
