@@ -31,29 +31,58 @@ companies:
 
 # RSSフィード設定
 rss_feeds:
-  - name: Google News - 造船
-    url: "https://news.google.com/rss/search?q=造船&hl=ja&gl=JP&ceid=JP:ja"
-  - name: Google News - プラントエンジニアリング
-    url: "https://news.google.com/rss/search?q=プラント+エンジニアリング&hl=ja&gl=JP&ceid=JP:ja"
-  - name: Google News - 三菱重工業
-    url: "https://news.google.com/rss/search?q=三菱重工業&hl=ja&gl=JP&ceid=JP:ja"
-  - name: Google News - 川崎重工業
-    url: "https://news.google.com/rss/search?q=川崎重工業&hl=ja&gl=JP&ceid=JP:ja"
-  - name: Google News - IHI
-    url: "https://news.google.com/rss/search?q=IHI+重工&hl=ja&gl=JP&ceid=JP:ja"
-  - name: Google News - 住友重機械
-    url: "https://news.google.com/rss/search?q=住友重機械工業&hl=ja&gl=JP&ceid=JP:ja"
-  - name: Google News - 重工機械受注
-    url: "https://news.google.com/rss/search?q=重工+機械+受注&hl=ja&gl=JP&ceid=JP:ja"
-  - name: Google News - LNG船・タンカー
-    url: "https://news.google.com/rss/search?q=LNG船+タンカー+建造&hl=ja&gl=JP&ceid=JP:ja"
-  - name: Google News - 防衛艦艇
-    url: "https://news.google.com/rss/search?q=防衛+艦艇+護衛艦&hl=ja&gl=JP&ceid=JP:ja"
-  - name: Google News - 脱炭素プラント
-    url: "https://news.google.com/rss/search?q=脱炭素+水素+アンモニア+プラント&hl=ja&gl=JP&ceid=JP:ja"
+  # Yahoo Japan ビジネスニュース（安定して取得可能）
+  - name: Yahoo Japan - ビジネス
+    url: "https://news.yahoo.co.jp/rss/categories/business.xml"
+  - name: Yahoo Japan - 国内
+    url: "https://news.yahoo.co.jp/rss/categories/domestic.xml"
+  - name: Yahoo Japan - 国際
+    url: "https://news.yahoo.co.jp/rss/categories/world.xml"
+
+  # Reuters Japan
+  - name: Reuters Japan - ビジネス
+    url: "https://feeds.reuters.com/reuters/JPbusinessNews"
+  - name: Reuters Japan - テクノロジー
+    url: "https://feeds.reuters.com/reuters/JPtechnologyNews"
+
+  # 企業プレスリリース（PR TIMES）
+  - name: PR TIMES - 三菱重工業
+    url: "https://prtimes.jp/rss/all/20885.rss"
+  - name: PR TIMES - 川崎重工業
+    url: "https://prtimes.jp/rss/all/38085.rss"
+  - name: PR TIMES - IHI
+    url: "https://prtimes.jp/rss/all/14315.rss"
 
 # メール配信設定
 email:
   subject_prefix: "【機械・造船・プラントセクター】ニュースダイジェスト"
-  max_articles_per_feed: 5
+  max_articles_per_feed: 8
   max_total_articles: 40
+  # キーワードフィルタリング（これらを含む記事のみ配信）
+  keywords:
+    - 造船
+    - プラント
+    - 重工
+    - 機械
+    - IHI
+    - 三菱重工
+    - 川崎重工
+    - 住友重機
+    - 日立造船
+    - 名村造船
+    - 小松製作所
+    - コマツ
+    - クボタ
+    - ダイキン
+    - 荏原
+    - 防衛
+    - 艦艇
+    - 護衛艦
+    - LNG
+    - タンカー
+    - 建造
+    - 受注
+    - エンジニアリング
+    - 脱炭素
+    - 水素
+    - アンモニア

@@ -28,6 +28,9 @@ jobs:
       - name: ニュース収集・メール配信
         env:
           RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
-          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
-          SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          SMTP_HOST: smtp.gmail.com
+          SMTP_PORT: "587"
+          SENDER_EMAIL: ${{ secrets.SMTP_USER }}
         run: python main.py

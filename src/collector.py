@@ -1,9 +1,12 @@
-import re
 import logging
-import feedparser
+import re
+import urllib.parse
+import xml.etree.ElementTree as ET
 import yaml
+import requests
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
+from email.utils import parsedate_to_datetime
 from typing import List, Optional
 
 logger = logging.getLogger(__name__)
@@ -26,22 +29,56 @@ def load_config(config_path: str = "config.yaml") -> dict:
         return yaml.safe_load(f)
 
 
-def _parse_published(entry) -> Optional[datetime]:
-    if hasattr(entry, "published_parsed") and entry.published_parsed:
-        return datetime(*entry.published_parsed[:6], tzinfo=timezone.utc)
-    return None
-
-
 def _strip_html(text: str) -> str:
-    return re.sub(r"<[^>]+>", "", text).strip()
+    return re.sub(r"<[^>]+>", "", text or "").strip()
+
+
+def _parse_date(date_str: str) -> Optional[datetime]:
+    if not date_str:
+        return None
+    try:
+        return parsedate_to_datetime(date_str.strip())
+    except Exception:
+        return None
+
+
+_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/124.0.0.0 Safari/537.36"
+    ),
+    "Accept-Language": "ja,en;q=0.9",
+    "Accept": "application/rss+xml, application/xml, text/xml, */*",
+}
+
+
+def _encode_url(url: str) -> str:
+    parsed = urllib.parse.urlsplit(url)
+    encoded_query = urllib.parse.quote(parsed.query, safe="=&")
+    return urllib.parse.urlunsplit(parsed._replace(query=encoded_query))
+
+
+def _fetch_feed(url: str) -> Optional[ET.Element]:
+    resp = requests.get(_encode_url(url), headers=_HEADERS, timeout=15)
+    resp.raise_for_status()
+    return ET.fromstring(resp.content)
+
+
+def _matches_keywords(text: str, keywords: List[str]) -> bool:
+    if not keywords:
+        return True
+    return any(kw in text for kw in keywords)
 
 
 def collect_news(config: dict) -> List[Article]:
     articles = []
-    seen_urls = set()
+    seen_urls: set = set()
     cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
-    max_per_feed = config.get("email", {}).get("max_articles_per_feed", 5)
-    max_total = config.get("email", {}).get("max_total_articles", 40)
+    email_cfg = config.get("email", {})
+    max_per_feed = email_cfg.get("max_articles_per_feed", 8)
+    max_total = email_cfg.get("max_total_articles", 40)
+    keywords: List[str] = email_cfg.get("keywords", [])
 
     for feed_cfg in config.get("rss_feeds", []):
         feed_name = feed_cfg["name"]
@@ -49,31 +86,49 @@ def collect_news(config: dict) -> List[Article]:
 
         try:
             logger.info(f"Fetching: {feed_name}")
-            feed = feedparser.parse(url)
+            root = _fetch_feed(url)
+
+            channel = root.find("channel")
+            if channel is None:
+                channel = root
+
+            feed_title = feed_name
+            title_el = channel.find("title")
+            if title_el is not None and title_el.text:
+                feed_title = title_el.text.strip()
 
             count = 0
-            for entry in feed.entries:
+            for item in channel.findall("item"):
                 if count >= max_per_feed:
                     break
 
-                article_url = entry.get("link", "")
-                if article_url in seen_urls:
+                link_el = item.find("link")
+                article_url = (link_el.text or "").strip() if link_el is not None else ""
+                if not article_url or article_url in seen_urls:
                     continue
 
-                published = _parse_published(entry)
+                pub_el = item.find("pubDate")
+                published = _parse_date(pub_el.text if pub_el is not None else None)
+                if published and published.tzinfo is None:
+                    published = published.replace(tzinfo=timezone.utc)
                 if published and published < cutoff:
                     continue
 
-                summary = ""
-                if hasattr(entry, "summary"):
-                    summary = _strip_html(entry.summary)[:300]
+                title_el = item.find("title")
+                title = _strip_html(title_el.text if title_el is not None else "")
+
+                desc_el = item.find("description")
+                summary = _strip_html(desc_el.text if desc_el is not None else "")[:300]
+
+                if not _matches_keywords(title + summary, keywords):
+                    continue
 
                 articles.append(Article(
-                    title=entry.get("title", "").strip(),
+                    title=title,
                     url=article_url,
                     summary=summary,
                     published=published,
-                    source=feed.feed.get("title", feed_name),
+                    source=feed_title,
                     feed_name=feed_name,
                 ))
                 seen_urls.add(article_url)
